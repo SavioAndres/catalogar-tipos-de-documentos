@@ -10,7 +10,7 @@ PATH = 'C:\\Users\\savio\\Desktop\\Base Exploratoria'
 score = 0.5
 # Lista com os cominhos dos arquivos resultados
 list_result = list()
-list_result.append('Possível tipo, Score da possíbilidade, Caminho do arquivo, Nome do arquivo\n')
+list_result.append('tipo,score,caminho,nome\n')
 # Lista de tipos encontrados
 list_types_found = list()
 # Lista de nomes não definidos na imagem
@@ -96,7 +96,7 @@ def search_by_type_on_pages():
             if pathlib.Path(path).name.lower() != 'arquivo':
                 l_type, _score = __likely_type(path, _name_file)
                 list_types_found.append(l_type)
-                list_result.append('{0}, {1}, {2}, {3}\n'.format(l_type, str(_score), path, _name_file))
+                list_result.append('{0},{1},{2},{3}\n'.format(l_type, str(_score), path, _name_file))
                 print(l_type, '>>>', str(_score), '>>>', os.path.join(path, _name_file))
 
 # Contar quantidade de tipos encontrados
