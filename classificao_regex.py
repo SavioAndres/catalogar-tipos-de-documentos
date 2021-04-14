@@ -7,7 +7,7 @@ import pathlib
 # Caminho do diretório explorado
 PATH = 'C:\\Users\\savio\\Desktop\\Base Exploratoria'
 # Score de quanto um tipo é semelhante ao tipo real
-score = 0.5
+score = 0.7
 # Lista com os cominhos dos arquivos resultados
 list_result = list()
 list_result.append('tipo,score,caminho,nome\n')
@@ -22,34 +22,34 @@ list_possible_failure_enter = list()
 
 # Tipos permitidos
 TYPES = [
-    "ABONO DE FALTAS",
-    "ABONO DE PERMANENCIA",
+    "ABONO FALTAS",
+    "ABONO PERMANENCIA",
     "AFASTAMENTO DO CARGO",
     "AFASTAMENTO PARA CONCORRER AO PLEITO ELEITORAL",
     "AFASTAMENTO PARA MANDATO SINDICAL",
     "AFASTAMENTO SEM JUSTIFICATIVA",
     "APOSENTADORIA",
     "APOSENTADORIA POR INVALIDEZ",
-    "AVERBACAO DE TEMPO DE SERVICO",
-    "CONCESSAO DE FINATE",
-    "CONCESSAO DE LICENCA-PREMIO",
+    "AVERBACAO TEMPO SERVICO",
+    "CONCESSAO FINATE",
+    "CONCESSAO LICENCA PREMIO",
     "DIARIAS",
     "FERIAS",
-    "GOZO DE LICENCA-PREMIO",
-    "INDENIZACAO DE LICENCA-PREMIO",
-    "INDENIZACAO DE FERIAS E 13º SALARIO",
+    "GOZO LICENCA PREMIO",
+    "INDENIZACAO LICENCA PREMIO",
+    "INDENIZACAO FERIAS E 13º SALARIO",
     "INDENIZACAO OUTRAS",
     "LICENCA ADOCAO",
     "LICENCA PARA ACOMPANHAMENTO DO CONJUGE",
     "LICENCA MEDICA",
     "LICENCA PARA ACOMPANHAR PESSOA DA FAMILIA",
-    "LICENCA PARA EXERCICIO DE MANDATO ELETIVO",
-    "LICENCA PARA TRATO DE INTERESSE PARTICULAR",
+    "LICENCA PARA EXERCICIO MANDATO ELETIVO",
+    "LICENCA PARA TRATO INTERESSE PARTICULAR",
     "LICENCA PATERNIDADE",
-    "MAJORACAO DE LICENCA-PREMIO",
+    "MAJORACAO LICENCA PREMIO",
     "OUTROS",
-    "PORTARIA CONCESSAO DE LICENCA-PREMIO",
-    "PORTARIA CONCESSAO DE LICENCA MEDICA",
+    "PORTARIA CONCESSAO LICENCA PREMIO",
+    "PORTARIA CONCESSAO LICENCA MEDICA",
     "PORTARIA CUMPRIMENTO",
     "PORTARIA DESIGNACAO",
     "PORTARIA DISPENSA",
@@ -57,13 +57,16 @@ TYPES = [
     "PORTARIA REMOCAO",
     "PORTARIA OUTRAS",
     "PROGRESSAO POR TITULACAO",
-    "INCORPORACAO DE FUNCAO",
+    "INCORPORACAO FUNCAO",
 ]
 
 # Nomalizando e extraíndo texto importante do nome da imagem
 def __normalize(word: str):
     word = normalize('NFKD', word[:-4]).encode('ASCII', 'ignore').decode('ASCII').upper()
-    return re.sub(r'[\d\.]+', '', word)
+    word = re.sub(r'[\d()\.]+', '', word)
+    word = re.sub(r'[-]+', ' ', word)
+    list_word = [w for w in word.split() if not w in 'DE']
+    return ' '.join(list_word)
 
 # Pegar provável tipo baseado em uma string
 def __likely_type(path: str, name_file: str):
@@ -71,14 +74,14 @@ def __likely_type(path: str, name_file: str):
     likely = difflib.get_close_matches(_type, TYPES, n=1, cutoff=0)
     _score = difflib.SequenceMatcher(None, _type, likely[0]).ratio()
     if _score >= score:
-        if _score <= score + 0.15:
+        if _score <= score + 0.2:
             text = str(_score) + ' > ' + likely[0] + ' > - ' + os.path.join(path, name_file) + '\n'
             list_possible_failure_enter.append(text)
         return likely[0], _score
     else:
         _, file_extension = os.path.splitext(name_file)
         if file_extension != '.db':
-            if _score >= score - 0.15:
+            if _score >= score - 0.2:
                 text = str(_score) + ' > ' + likely[0] + ' > - ' + os.path.join(path, name_file) + '\n'
                 list_possible_failure_not_enter.append(text)
             list_undefined.append(os.path.join(path, name_file) + '\n')
@@ -125,8 +128,7 @@ def possible_failure_enter(name: str):
 ######### Execução #########
 search_by_type_on_pages()
 count_types()
-save_result('C:\\Users\\savio\\Desktop\\resultado2.csv')
+save_result('C:\\Users\\savio\\Desktop\\resultado2.txt')
 save_not_named('C:\\Users\\savio\\Desktop\\log-teste.txt')
 #possible_failure_not_enter('C:\\Users\\savio\\Desktop\\possible_failure_not_enter.txt')
 #possible_failure_enter('C:\\Users\\savio\\Desktop\\possible_failure_enter.txt')
-#search_by_type_in_folders()
