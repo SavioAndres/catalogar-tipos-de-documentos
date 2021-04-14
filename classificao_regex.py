@@ -98,9 +98,10 @@ def search_by_type_on_pages():
         for _name_file in name_file:
             if pathlib.Path(path).name.lower() != 'arquivo':
                 l_type, _score = __likely_type(path, _name_file)
-                list_types_found.append(l_type)
-                list_result.append('{0},{1},{2},{3}\n'.format(l_type, str(_score), path, _name_file))
-                print(l_type, '>>>', str(_score), '>>>', os.path.join(path, _name_file))
+                if l_type != None:
+                    list_types_found.append(l_type)
+                    list_result.append('{0},{1},{2},{3}\n'.format(l_type, str(_score), path, _name_file))
+                    print(l_type, '>>>', str(_score), '>>>', os.path.join(path, _name_file))
 
 # Contar quantidade de tipos encontrados
 def count_types():
@@ -128,7 +129,7 @@ def possible_failure_enter(name: str):
 ######### Execução #########
 search_by_type_on_pages()
 count_types()
-save_result('C:\\Users\\savio\\Desktop\\resultado2.txt')
+save_result('C:\\Users\\savio\\Desktop\\resultado.txt')
 save_not_named('C:\\Users\\savio\\Desktop\\log-teste.txt')
 #possible_failure_not_enter('C:\\Users\\savio\\Desktop\\possible_failure_not_enter.txt')
 #possible_failure_enter('C:\\Users\\savio\\Desktop\\possible_failure_enter.txt')
