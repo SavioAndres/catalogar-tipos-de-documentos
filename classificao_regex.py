@@ -5,9 +5,9 @@ from unicodedata import normalize
 import pathlib
 
 # Caminho do diretório explorado
-PATH = 'C:\\Users\\savio\\Desktop\\Base Exploratoria'
+PATH = 'C:\\Users\\savio\\Documents\\Servidores text'
 # Score de quanto um tipo é semelhante ao tipo real
-score = 0.7
+score = 0.8
 # Lista com os cominhos dos arquivos resultados
 list_result = list()
 list_result.append('tipo,score,caminho,nome\n')
@@ -58,11 +58,14 @@ TYPES = [
     "PORTARIA OUTRAS",
     "PROGRESSAO POR TITULACAO",
     "INCORPORACAO FUNCAO",
+    "CHECKLIST DE DOCUMENTOS",
+    "ATESTADO MEDICO",
+    "COMISSAO DE JULGAMENTO DE 1ª INSTANCIA"
 ]
 
 # Nomalizando e extraíndo texto importante do nome da imagem
 def __normalize(word: str):
-    word = normalize('NFKD', word[:-4]).encode('ASCII', 'ignore').decode('ASCII').upper()
+    word = normalize('NFKD', word[:-8]).encode('ASCII', 'ignore').decode('ASCII').upper()
     word = re.sub(r'[\d()\.]+', '', word)
     word = re.sub(r'[-]+', ' ', word)
     list_word = [w for w in word.split() if not w in 'DE']
@@ -74,14 +77,14 @@ def __likely_type(path: str, name_file: str):
     likely = difflib.get_close_matches(_type, TYPES, n=1, cutoff=0)
     _score = difflib.SequenceMatcher(None, _type, likely[0]).ratio()
     if _score >= score:
-        if _score <= score + 0.2:
+        if _score <= score + 0.1:
             text = str(_score) + ' > ' + likely[0] + ' > - ' + os.path.join(path, name_file) + '\n'
             list_possible_failure_enter.append(text)
         return likely[0], _score
     else:
         _, file_extension = os.path.splitext(name_file)
         if file_extension != '.db':
-            if _score >= score - 0.2:
+            if _score >= score - 0.1:
                 text = str(_score) + ' > ' + likely[0] + ' > - ' + os.path.join(path, name_file) + '\n'
                 list_possible_failure_not_enter.append(text)
             list_undefined.append(os.path.join(path, name_file) + '\n')
@@ -131,5 +134,5 @@ search_by_type_on_pages()
 count_types()
 save_result('C:\\Users\\savio\\Desktop\\resultado.txt')
 save_not_named('C:\\Users\\savio\\Desktop\\log-teste.txt')
-#possible_failure_not_enter('C:\\Users\\savio\\Desktop\\possible_failure_not_enter.txt')
-#possible_failure_enter('C:\\Users\\savio\\Desktop\\possible_failure_enter.txt')
+possible_failure_not_enter('C:\\Users\\savio\\Desktop\\possible_failure_not_enter.txt')
+possible_failure_enter('C:\\Users\\savio\\Desktop\\possible_failure_enter.txt')
