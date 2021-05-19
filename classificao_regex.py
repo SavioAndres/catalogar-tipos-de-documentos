@@ -3,14 +3,16 @@ import difflib
 import os
 from unicodedata import normalize
 import pathlib
+import csv
 
 # Caminho do diretório explorado
 PATH = 'C:\\Users\\savio\\Documents\\Servidores text'
 # Score de quanto um tipo é semelhante ao tipo real
 score = 0.8
 # Lista com os cominhos dos arquivos resultados
+data_result = list()
 list_result = list()
-list_result.append('tipo,score,caminho,nome\n')
+list_result.append('tipo,score,caminho,nome,data,protocolo,ci\n')
 # Lista de tipos encontrados
 list_types_found = list()
 # Lista de nomes não definidos na imagem
@@ -37,7 +39,7 @@ TYPES = [
     "FERIAS",
     "GOZO LICENCA PREMIO",
     "INDENIZACAO LICENCA PREMIO",
-    "INDENIZACAO FERIAS E 13º SALARIO",
+    "INDENIZACAO FERIAS E 13O SALARIO",
     "INDENIZACAO OUTRAS",
     "LICENCA ADOCAO",
     "LICENCA PARA ACOMPANHAMENTO DO CONJUGE",
@@ -60,7 +62,7 @@ TYPES = [
     "INCORPORACAO FUNCAO",
     "CHECKLIST DE DOCUMENTOS",
     "ATESTADO MEDICO",
-    "COMISSAO DE JULGAMENTO DE 1ª INSTANCIA"
+    "COMISSAO DE JULGAMENTO DE 1A INSTANCIA"
 ]
 
 # Nomalizando e extraíndo texto importante do nome da imagem
@@ -95,6 +97,24 @@ def __save_file(_list: list, name: str):
     f = open(name, 'w', encoding='utf8')
     f.writelines(_list)
 
+def information(text: str):
+    date = ''
+    prot = ''
+    ci = ''
+    match = re.search(r'(\d{4}\.\d{2}\.\d{2})', text)
+    if match != None:
+        date = match.group()
+    match = re.search(r'((\d{3}\.\d{3}|\d{6})\.\d{5}(\.|\s)\d{4}(\.|\-)\d{1})', text)
+    if match != None:
+        prot = re.sub('[\s|\.|\-]', '', match.group())
+        prot = prot[:3] + '.' + prot[3:6] + '.' + prot[6:11] + '.' + prot[11:15] + '.' + prot[15:]
+    else:
+        match = re.search(r'(\s\d+\.\d{4})', text)
+        if match != None:
+            ci = re.sub('[\s|\.]', '', match.group())
+            ci = (ci[:-4] + '.' + ci[-4:]).zfill(9)
+    return (date, prot, ci)
+
 # Buscar tipo por página
 def search_by_type_on_pages():
     for path, _, name_file in os.walk(os.path.abspath(PATH)):
@@ -103,7 +123,11 @@ def search_by_type_on_pages():
                 l_type, _score = __likely_type(path, _name_file)
                 if l_type != None:
                     list_types_found.append(l_type)
-                    list_result.append('{0},{1},{2},{3}\n'.format(l_type, str(_score), path, _name_file))
+                    #text = open(path + '/' + _name_file, 'r')
+                    #data_result.append([l_type, str(_score), path, _name_file, text.read()])
+                    path_modified = re.sub(r'\\', '/', path[41:])
+                    date, protocolo, ci = information(path_modified)
+                    list_result.append('{0},{1},{2},{3},{4},{5},{6}\n'.format(l_type, str(_score), path_modified, _name_file, date, protocolo, ci))
                     print(l_type, '>>>', str(_score), '>>>', os.path.join(path, _name_file))
 
 # Contar quantidade de tipos encontrados
@@ -111,6 +135,13 @@ def count_types():
     for _type in TYPES:
         print(_type + ':', list_types_found.count(_type))
     print('Total:', len(list_types_found))
+
+# Salvar resultado em CSV com todas informações e texto
+'''def save_result_csv(nome: str):
+    with open(nome, 'w', encoding='UTF8', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['tipo', 'score', 'caminho', 'nome', 'texto'])
+        writer.writerows(data_result)'''
 
 # Salvar resultado da categorização
 def save_result(name: str):
@@ -132,6 +163,7 @@ def possible_failure_enter(name: str):
 ######### Execução #########
 search_by_type_on_pages()
 count_types()
+#save_result_csv('C:\\Users\\savio\\Desktop\\resultado.csv')
 save_result('C:\\Users\\savio\\Desktop\\resultado.txt')
 save_not_named('C:\\Users\\savio\\Desktop\\log-teste.txt')
 possible_failure_not_enter('C:\\Users\\savio\\Desktop\\possible_failure_not_enter.txt')
