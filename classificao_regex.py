@@ -123,10 +123,11 @@ def search_by_type_on_pages():
                 l_type, _score = __likely_type(path, _name_file)
                 if l_type != None:
                     list_types_found.append(l_type)
-                    #text = open(path + '/' + _name_file, 'r')
-                    #data_result.append([l_type, str(_score), path, _name_file, text.read()])
                     path_modified = re.sub(r'\\', '/', path[41:])
                     date, protocolo, ci = information(path_modified)
+                    text = open(path + '/' + _name_file, 'r')
+                    
+                    data_result.append([l_type, str(_score), path_modified, _name_file, date, protocolo, ci, text.read()])
                     list_result.append('{0},{1},{2},{3},{4},{5},{6}\n'.format(l_type, str(_score), path_modified, _name_file, date, protocolo, ci))
                     print(l_type, '>>>', str(_score), '>>>', os.path.join(path, _name_file))
 
@@ -137,11 +138,11 @@ def count_types():
     print('Total:', len(list_types_found))
 
 # Salvar resultado em CSV com todas informações e texto
-'''def save_result_csv(nome: str):
+def save_result_csv(nome: str):
     with open(nome, 'w', encoding='UTF8', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['tipo', 'score', 'caminho', 'nome', 'texto'])
-        writer.writerows(data_result)'''
+        writer.writerow(['tipo', 'score', 'caminho', 'nome', 'data', 'protocolo', 'ci', 'texto'])
+        writer.writerows(data_result)
 
 # Salvar resultado da categorização
 def save_result(name: str):
@@ -163,7 +164,7 @@ def possible_failure_enter(name: str):
 ######### Execução #########
 search_by_type_on_pages()
 count_types()
-#save_result_csv('C:\\Users\\savio\\Desktop\\resultado.csv')
+save_result_csv('C:\\Users\\savio\\Desktop\\resultado.csv')
 save_result('C:\\Users\\savio\\Desktop\\resultado.txt')
 save_not_named('C:\\Users\\savio\\Desktop\\log-teste.txt')
 possible_failure_not_enter('C:\\Users\\savio\\Desktop\\possible_failure_not_enter.txt')
